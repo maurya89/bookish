@@ -10,7 +10,10 @@ const router = new Router();
 router.prefix(`/${baseApi}/${api}`)
 
 // GET /api/books
-router.get('/getAllBooks/:text/:offset', BooksControllers.getAllBooks)
+router.post('/getAllBooks', BooksControllers.getAllBooks)
+
+// GET /api/books
+router.post('/getAllBooksByCategory', BooksControllers.getAllBooksByCategory)
 
 // GET /api/books/id
 router.get('/getBookById/:bookId', BooksControllers.getBookById)

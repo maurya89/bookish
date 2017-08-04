@@ -12,32 +12,82 @@ class BooksControllers {
      * @param {*} ctx 
      */
     async getAllBooks(ctx) {
-        let searchParameter = ctx.params.text;
 
-        let offset = ctx.params.offset;
-
-        if(!searchParameter || !offset){
+        let searchParameter = ctx.request.body.category;
+        if(!searchParameter){
             ctx.status = 400;
-            ctx.body = {success: false, message:"Please enter required fields."};
+            ctx.body = {success:false, message:"Please select category."};
             return;
         }
 
         var options = {
             key:config.GOOGLE_BOOK_KEY,
-            offset: offset,
+            offset: 0,
             limit: 10,
+            field:'title',
             type: 'books',
             order: 'relevance',
             lang: 'en'
         };
         try { 
-            let books = await googleBooks.searchAsync(searchParameter , options);
-            ctx.body = {success: true, data:{}, arrayData:books};                        
             
+            if(searchParameter === 'All'){
+                let categories = ['History', 'Science','Travel','Music','Romance','Drama','Fantasy'];
+                let booksArray = [];
+               await Promise.all(categories.map(async (category) => {
+                    let books = await googleBooks.searchAsync(category , options);
+                    let json = {};                    
+                    json.CategoryName = category;
+                    json.Book = books;
+                    booksArray.push(json);
+                }));
+                ctx.body = {success: true, data:{}, arrayData:booksArray};
+            }else{
+                let categories = searchParameter;
+                let booksArray = [];
+               await Promise.all(categories.map(async (category) => {
+                    let books = await googleBooks.searchAsync(category , options);
+                    let json = {};                    
+                    json.CategoryName = category;
+                    json.Book = books;
+                    booksArray.push(json);
+                }));
+                ctx.body = {success: true, data:{}, arrayData:booksArray};
+            } 
         } catch (err) {
             console.log(err)
             throw(500,'Some error occured during book fetch');
         }  
+    }
+
+
+
+    async getAllBooksByCategory(ctx) {
+
+        let obj = ctx.request.body;
+        if (!obj.category || typeof obj.offset== 'undefined') {
+            ctx.status = 400;
+            ctx.body = { success: false, message: "Please select required fields."}
+            return;
+        }
+
+        var options = {
+            key: config.GOOGLE_BOOK_KEY,
+            offset: obj.offset,
+            limit: 10,
+            field: 'title',
+            type: 'books',
+            order: 'relevance',
+            lang: 'en'
+        };
+        try {
+            let books = await googleBooks.searchAsync(obj.category, options);
+            ctx.body = { success: true, data: {}, arrayData: books };
+            
+        } catch (err) {
+            console.log(err)
+            throw (500, 'Some error occured during book fetch');
+        }
     }
 
     /**

@@ -84,12 +84,22 @@ class UsersControllers {
              if(!_.isEmpty(ctx.request.body.files)){
                 let file =  ctx.request.body.files.photo;
                 let filePath = file.path;
+                let photoName = file.name;
+                if(!(/\.(gif|jpg|jpeg|png)$/i).test(photoName)){
+                    console.log("in");
+                    ctx.status = 400;
+                    ctx.body = {success: false, message:"Please upload accepted files."};
+                    return;
+
+                }
                 let type = file.type;
                 let extension = '.jpg';
                 if (type == 'image/png')
                     extension = '.png';
                 else if (type == 'image/gif')
                     extension = '.gif';
+                else if (type == 'image/jpeg')
+                    extension = '.jpeg';
                 let fileName = new Date().getTime() + extension;
                 let uploadLocation = path.join(__dirname, '../../public/uploads/images/');
                 let copyFile = await fs.copy(filePath, uploadLocation + fileName)
@@ -102,6 +112,7 @@ class UsersControllers {
             userJson.email = userSaved.email;
             userJson.name = userSaved.name;
             userJson._id = userSaved._id;
+            userJson.profile_photo = userSaved.profile_photo;
             userJson.favourite_books = userSaved.favourite_books;
             const token = jwt.sign(userJson, config.JWTSECRET);
             let json = {};
