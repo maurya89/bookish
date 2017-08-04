@@ -11,6 +11,7 @@ import jwt from 'koa-jwt';
 
 
 
+
 // promisify mongoose
 Promise.promisifyAll(mongoose);
 
@@ -28,9 +29,11 @@ mongoose.set('debug',true);
 const app = new Koa();
 
 app
+  .use(serve('./public'))
   .use(logger())
   .use(bodyParser())
   .use(helmet())
+  
 
 app.use(jwt({ secret: 'dfshsjki@#$%^&*()@!$%%#$@' }).unless({ path: [/^\/public/] }));
   

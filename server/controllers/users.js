@@ -4,6 +4,9 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/users';
 import * as config from '../config';
+import _ from 'lodash';
+import fs from 'fs-extra';
+import path from 'path';
 
 class UsersControllers {
 
@@ -54,7 +57,9 @@ class UsersControllers {
      */
     async signup(ctx) {
 
-        let userObj = ctx.request.body;
+        console.log(ctx.request.body.files);
+
+        let userObj = ctx.request.body.fields;
         if(!userObj.email || !userObj.password || !userObj.name){
             ctx.status = 400;
             ctx.body = {success: false, message:"Please enter required fields."};            
@@ -74,6 +79,23 @@ class UsersControllers {
                 ctx.body = {success: false, message:"Email already in use."};
                 return;
             }
+
+
+             if(!_.isEmpty(ctx.request.body.files)){
+                let file =  ctx.request.body.files.photo;
+                let filePath = file.path;
+                let type = file.type;
+                let extension = '.jpg';
+                if (type == 'image/png')
+                    extension = '.png';
+                else if (type == 'image/gif')
+                    extension = '.gif';
+                let fileName = new Date().getTime() + extension;
+                let uploadLocation = path.join(__dirname, '../../public/uploads/images/');
+                let copyFile = await fs.copy(filePath, uploadLocation + fileName)
+                userObj.profile_photo = '/uploads/images/'+fileName;
+            }
+
             let userSave = new User(userObj);
             let userSaved = await userSave.saveAsync()
             let userJson = {};
@@ -84,6 +106,7 @@ class UsersControllers {
             const token = jwt.sign(userJson, config.JWTSECRET);
             let json = {};
             json.token = token;
+           
             ctx.body = {data:json, arrayData:[],success: true, message:"User has been registered successfully."};            
 
         } catch (err) {

@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema({
   favourite_books:{
     type:Array,
     default:[]
+  },
+  profile_photo:{
+    type:String,
+    default:''
   }
 }, {timestamps: true});
 

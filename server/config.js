@@ -1,4 +1,4 @@
-export const port = process.env.PORT || 7070;
+export const port = process.env.PORT || 8080;
 export const connexionString = 'mongodb://localhost/bookish';
 export const baseApi = 'api';
 export const publicApi = 'public';
