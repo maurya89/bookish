@@ -35,7 +35,7 @@ app
   .use(helmet())
   
 
-app.use(jwt({ secret: 'dfshsjki@#$%^&*()@!$%%#$@' }).unless({ path: [/^\/public/] }));
+app.use(jwt({ secret: 'AIzaSyACKSH6x58dHWw5wkVtgVZn0DrdxO8M08I' }).unless({ path: [/^\/public/] }));
   
 
 routing(app);

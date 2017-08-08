@@ -23,6 +23,9 @@ router.get('/:id', UsersControllers.findById)
 // GET /api/users/id
 router.post('/fovourite_books', UsersControllers.updateFavBooks)
 
+router.post('/forgotPassword', UsersControllers.forgotPassword)
+
+
 
 
 export default router

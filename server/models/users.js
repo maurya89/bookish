@@ -24,6 +24,18 @@ const UserSchema = new mongoose.Schema({
   profile_photo:{
     type:String,
     default:''
+  },
+  forgotPwdToken:{
+    type:String,
+    required:false
+  },
+  forgotPwdToken:{
+    type:String,
+    required:false
+  },
+  forgotPwdExpire:{
+    type:String,
+    required:false
   }
 }, {timestamps: true});
 

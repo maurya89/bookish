@@ -1,12 +1,17 @@
 import 'babel-polyfill';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/users';
 import * as config from '../config';
 import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
+import Promise from 'bluebird';
+import cryptoImp from 'crypto';
+const crypto = Promise.promisifyAll(cryptoImp);
+import moment from 'moment';
+import nodemailer from 'nodemailer';
+//const _nodemailer = Promise.promisifyAll(nodemailer);
 
 class UsersControllers {
 
@@ -16,32 +21,32 @@ class UsersControllers {
      */
     async login(ctx) {
         let userObj = ctx.request.body;
-        if(!userObj.email || !userObj.password){
+        if (!userObj.email || !userObj.password) {
             ctx.status = 400;
-            ctx.body = {success: false, message:"Please enter required fields."};
+            ctx.body = { success: false, message: "Please enter required fields." };
             return;
-        }        
+        }
         let findQuery = {};
         findQuery.email = userObj.email;
         try {
             const user = await User.findOne(findQuery).lean(true).execAsync();
             if (!user) {
                 ctx.status = 400;
-                ctx.body = {success: false, message:"Authentication failed! User not found."};                
-                return ;
+                ctx.body = { success: false, message: "Authentication failed! User not found." };
+                return;
             }
 
             let bcrypt_password_matched = bcrypt.compareSync(userObj.password, user.password);
             if (!bcrypt_password_matched) {
                 ctx.status = 400;
-                ctx.body = {success: false, message:"Authentication failed! Wrong password."};
+                ctx.body = { success: false, message: "Authentication failed! Wrong password." };
                 return;
             }
 
             const token = jwt.sign(user, config.JWTSECRET);
             let json = {};
             json.token = token;
-            ctx.body = {data:json, arrayData:[],success: true, message:"User has been login successfully."};
+            ctx.body = { data: json, arrayData: [], success: true, message: "User has been login successfully." };
 
         } catch (err) {
             if (err.name === 'CastError' || err.name === 'NotFoundError') {
@@ -60,14 +65,14 @@ class UsersControllers {
         console.log(ctx.request.body.files);
 
         let userObj = ctx.request.body.fields;
-        if(!userObj.email || !userObj.password || !userObj.name){
+        if (!userObj.email || !userObj.password || !userObj.name) {
             ctx.status = 400;
-            ctx.body = {success: false, message:"Please enter required fields."};            
+            ctx.body = { success: false, message: "Please enter required fields." };
             return;
         }
         let findQuery = {};
         findQuery.email = userObj.email;
-        if(userObj.password){
+        if (userObj.password) {
             let password = userObj.password;
             let bcrypt_password = bcrypt.hashSync(password, 10);
             userObj.password = bcrypt_password;
@@ -76,19 +81,19 @@ class UsersControllers {
             const user = await User.findOneAsync(findQuery);
             if (user) {
                 ctx.status = 400;
-                ctx.body = {success: false, message:"Email already in use."};
+                ctx.body = { success: false, message: "Email already in use." };
                 return;
             }
 
 
-             if(!_.isEmpty(ctx.request.body.files)){
-                let file =  ctx.request.body.files.photo;
+            if (!_.isEmpty(ctx.request.body.files)) {
+                let file = ctx.request.body.files.photo;
                 let filePath = file.path;
                 let photoName = file.name;
-                if(!(/\.(gif|jpg|jpeg|png)$/i).test(photoName)){
+                if (!(/\.(gif|jpg|jpeg|png)$/i).test(photoName)) {
                     console.log("in");
                     ctx.status = 400;
-                    ctx.body = {success: false, message:"Please upload accepted files."};
+                    ctx.body = { success: false, message: "Please upload accepted files." };
                     return;
 
                 }
@@ -103,7 +108,7 @@ class UsersControllers {
                 let fileName = new Date().getTime() + extension;
                 let uploadLocation = path.join(__dirname, '../../public/uploads/images/');
                 let copyFile = await fs.copy(filePath, uploadLocation + fileName)
-                userObj.profile_photo = '/uploads/images/'+fileName;
+                userObj.profile_photo = '/uploads/images/' + fileName;
             }
 
             let userSave = new User(userObj);
@@ -117,8 +122,7 @@ class UsersControllers {
             const token = jwt.sign(userJson, config.JWTSECRET);
             let json = {};
             json.token = token;
-           
-            ctx.body = {data:json, arrayData:[],success: true, message:"User has been registered successfully."};            
+            ctx.body = { data: json, arrayData: [], success: true, message: "User has been registered successfully." };
 
         } catch (err) {
             console.log(err);
@@ -161,7 +165,7 @@ class UsersControllers {
 
     async updateFavBooks(ctx) {
         let userObj = ctx.request.body;
-        if(!userObj.userId || !userObj.author || !userObj.bookId){
+        if (!userObj.userId || !userObj.author || !userObj.bookId) {
             ctx.status = 400;
             ctx.body = 'Please enter required fields.';
             return;
@@ -172,8 +176,8 @@ class UsersControllers {
             let updateObj = {};
             updateObj.author = userObj.author;
             updateObj.bookId = userObj.bookId;
-            const user = await User.updateAsync(findQuery, { $addToSet: {favourite_books: updateObj } });
-            ctx.body = {success: true, message:"Book has been added successfully"}; 
+            const user = await User.updateAsync(findQuery, { $addToSet: { favourite_books: updateObj } });
+            ctx.body = { success: true, message: "Book has been added successfully" };
         } catch (err) {
             if (err.name === 'CastError' || err.name === 'NotFoundError') {
                 ctx.throw(404);
@@ -182,8 +186,82 @@ class UsersControllers {
         }
     }
 
-    
+    /**
+     * Forgot Password
+     * @param {*} ctx 
+     */
+    async forgotPassword(ctx) {
 
+        try {
+            let buff = await crypto.randomBytesAsync(20);
+            let token = buff.toString('hex');
+            let findQuery = {};
+            findQuery.email = ctx.request.body.email;
+            let user = await User.findOneAsync(findQuery);
+            if (!user) {
+                ctx.status = 400;
+                cyx.body = { success: false, message: 'User not found.' };
+                return;
+            }
+            let userObj = {};
+            userObj.forgotPwdToken = token;
+            userObj.forgotPwdExpire = moment().add(1, 'hours').format();
+
+            let updateObj = {};
+            updateObj.$set = userObj;
+            let modifiedUser = await User.updateAsync(findQuery, updateObj);
+            let transporter = Promise.promisifyAll(nodemailer.createTransport(config.mailConfig));
+            let mailOptions = {
+                from: '"info@nethues.org.uk" <andy@123789.org>', // sender address
+                to: 'andy@123789.org', // list of receivers
+                subject: 'Forgot Password', // Subject line
+                html: 'click here'
+            };
+
+            let mailInfo = await transporter.sendMailAsync(mailOptions);
+            ctx.body = { success: true, message: 'Email sent successfully' };
+        } catch (err) {
+            throw (500);
+        }
+
+    }
+
+    /**
+     * Reset Password
+     * @param {*} ctx 
+     */
+    async resetPassword(ctx) {
+
+        if(!ctx.request.body){
+            ctx.status = 400;
+            ctx.body = {success:false,message:'Please enter required fields.'}
+        }
+
+        try {
+            let user = await User.findOneAsync({ forgotPwdToken: ctx.request.params.token, forgotPwdExpire: { $gt: moment().toISOString() } });
+            if(!user){
+                ctx.status = 400;
+                ctx.body = {success:false, message:'Your token expired, Please try again'};
+            }
+            let password = ctx.request.body.password;
+            let bcrypt_password = bcrypt.hashSync(password, 10);
+            let userObj = {};
+            userObj.forgotPwdToken = '';
+            userObj.forgotPwdExpire = null;
+            userObj.password = bcrypt_password;
+            let findQuery = {};
+            findQuery._id = user._id;
+            
+            let updateObj = {};
+            updateObj.$set = userObj;
+            let modifiedUser =  await User.updateAsync(findQuery, updateObj);
+            ctx.body = {success:true, message:'Password has been changed successfully'};
+
+        } catch (err) {
+            throw(500);
+        }
+
+    }
 }
 
 export default new UsersControllers()

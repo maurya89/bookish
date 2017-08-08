@@ -43,7 +43,8 @@ class BooksControllers {
                 }));
                 ctx.body = {success: true, data:{}, arrayData:booksArray};
             }else{
-                let categories = searchParameter;
+                let categories = searchParameter instanceof Array ? searchParameter : [] ;
+
                 let booksArray = [];
                await Promise.all(categories.map(async (category) => {
                     let books = await googleBooks.searchAsync(category , options);
