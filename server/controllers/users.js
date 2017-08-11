@@ -62,10 +62,16 @@ class UsersControllers {
      */
     async signup(ctx) {
 
-        console.log(ctx.request.body.files);
+        console.log(ctx.request.body.fields);
 
         let userObj = ctx.request.body.fields;
-        if (!userObj.email || !userObj.password || !userObj.name) {
+        if (!userObj.email ||  !userObj.name) {
+            ctx.status = 400;
+            ctx.body = { success: false, message: "Please enter required fields." };
+            return;
+        }
+
+        if(!userObj.password && userObj.socialLogin == 'false'){
             ctx.status = 400;
             ctx.body = { success: false, message: "Please enter required fields." };
             return;
@@ -77,15 +83,18 @@ class UsersControllers {
             let bcrypt_password = bcrypt.hashSync(password, 10);
             userObj.password = bcrypt_password;
         }
+
+        if(userObj.socialLogin == 'true'){
+            userObj.password = null;
+        }
+
         try {
             const user = await User.findOneAsync(findQuery);
-            if (user) {
+            if (user && userObj.socialLogin == 'false') {
                 ctx.status = 400;
                 ctx.body = { success: false, message: "Email already in use." };
                 return;
             }
-
-
             if (!_.isEmpty(ctx.request.body.files)) {
                 let file = ctx.request.body.files.photo;
                 let filePath = file.path;
@@ -110,15 +119,23 @@ class UsersControllers {
                 let copyFile = await fs.copy(filePath, uploadLocation + fileName)
                 userObj.profile_photo = '/uploads/images/' + fileName;
             }
-
-            let userSave = new User(userObj);
-            let userSaved = await userSave.saveAsync()
             let userJson = {};
-            userJson.email = userSaved.email;
-            userJson.name = userSaved.name;
-            userJson._id = userSaved._id;
-            userJson.profile_photo = userSaved.profile_photo;
-            userJson.favourite_books = userSaved.favourite_books;
+            if (userObj.socialLogin == 'true' && user) {
+                userJson.email = user.email;
+                userJson.name = user.name;
+                userJson._id = user._id;
+                userJson.profile_photo = user.profile_photo;
+                userJson.favourite_books = user.favourite_books;
+            } else {
+                let userSave = new User(userObj);
+                let userSaved = await userSave.saveAsync()
+                userJson.email = userSaved.email;
+                userJson.name = userSaved.name;
+                userJson._id = userSaved._id;
+                userJson.profile_photo = userSaved.profile_photo;
+                userJson.favourite_books = userSaved.favourite_books;
+            }            
+            
             const token = jwt.sign(userJson, config.JWTSECRET);
             let json = {};
             json.token = token;
@@ -165,24 +182,23 @@ class UsersControllers {
 
     async updateFavBooks(ctx) {
         let userObj = ctx.request.body;
-        if (!userObj.userId || !userObj.author || !userObj.bookId) {
+        if (!userObj.author || !userObj.bookId) {
             ctx.status = 400;
             ctx.body = 'Please enter required fields.';
             return;
         }
         try {
             let findQuery = {};
-            findQuery._id = userObj.userId;
+            findQuery._id = ctx.state.user._id;
             let updateObj = {};
             updateObj.author = userObj.author;
             updateObj.bookId = userObj.bookId;
+            updateObj.category = userObj.category;
             const user = await User.updateAsync(findQuery, { $addToSet: { favourite_books: updateObj } });
             ctx.body = { success: true, message: "Book has been added successfully" };
         } catch (err) {
-            if (err.name === 'CastError' || err.name === 'NotFoundError') {
-                ctx.throw(404);
-            }
-            ctx.throw(500);
+            console.log(err);
+            ctx.throw(err);
         }
     }
 
@@ -221,7 +237,7 @@ class UsersControllers {
             let mailInfo = await transporter.sendMailAsync(mailOptions);
             ctx.body = { success: true, message: 'Email sent successfully' };
         } catch (err) {
-            throw (500);
+            ctx.throw(500);
         }
 
     }
@@ -258,7 +274,7 @@ class UsersControllers {
             ctx.body = {success:true, message:'Password has been changed successfully'};
 
         } catch (err) {
-            throw(500);
+            ctx.throw(500);
         }
 
     }

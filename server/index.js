@@ -20,23 +20,39 @@ Promise.config({
   cancellation: true,
 });
 
-
-mongoose.connect(connexionString);
-mongoose.connection.on('error', console.error);
-mongoose.set('debug',true);
+mongoose
+  .connect(connexionString)
+  .then((response) => {
+    console.log('mongo connection created')
+  })
+  .catch((err) => {
+    console.log("Error connecting to Mongo")
+    console.log(err);
+  })
+mongoose.set('debug', true);
 
 // Create Koa Application
 const app = new Koa();
+
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (err) {
+    ctx.status = err.status || 500;
+    ctx.body = {success:false, message: err.message };
+    ctx.app.emit('error', err, ctx);
+  }
+})
 
 app
   .use(serve('./public'))
   .use(logger())
   .use(bodyParser())
   .use(helmet())
-  
+
 
 app.use(jwt({ secret: 'AIzaSyACKSH6x58dHWw5wkVtgVZn0DrdxO8M08I' }).unless({ path: [/^\/public/] }));
-  
+
 
 routing(app);
 

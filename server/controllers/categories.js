@@ -13,7 +13,7 @@ class CategoriesControllers {
             let categories = await Category.findAsync();
             ctx.body = { data: {}, arrayData: categories, success: true };
         } catch (err) {
-            throw (500);
+            ctx.throw(err);
         }
     }
 }

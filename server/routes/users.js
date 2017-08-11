@@ -25,6 +25,16 @@ router.post('/fovourite_books', UsersControllers.updateFavBooks)
 
 router.post('/forgotPassword', UsersControllers.forgotPassword)
 
+router.get('/throwerror/err', async (ctx) => {
+    try {
+        ctx.throw(400, 'Error occured during send.');
+        return;
+    } catch (err) {
+        ctx.throw(err);
+    }
+})
+
+
 
 
 

@@ -18,6 +18,11 @@ router.post('/getAllBooksByCategory', BooksControllers.getAllBooksByCategory)
 // GET /api/books/id
 router.get('/getBookById/:bookId', BooksControllers.getBookById)
 
+router.get('/recommended/category/:offset', BooksControllers.getRecommendedBooksByCategory)
+
+router.get('/recommended/author/:offset', BooksControllers.getRecommendedBooksByAuthor)
+
+router.get('/recommended/new-release/:offset', BooksControllers.getRecommendedBooksByNewRelease)
 
 
 export default router
