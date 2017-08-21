@@ -192,8 +192,10 @@ class UsersControllers {
         try {
             let findQuery = {};
             findQuery._id = ctx.state.user._id;
-            const user = await User.updateAsync(findQuery, { $addToSet: { favourite_books:{ $each:bookArray}} });
-            ctx.body = { success: true, message: "Book has been added successfully." };
+            const user = await User.findOneAndUpdateAsync(findQuery, { $addToSet: { favourite_books:{ $each:bookArray}} },{new:true});
+            let json = {};
+            json.favourite_books = user.favourite_books;
+            ctx.body = { success: true, message: "Book has been added successfully.", data : json};
         } catch (err) {
             console.log(err);
             ctx.throw(err);
