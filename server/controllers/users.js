@@ -181,21 +181,19 @@ class UsersControllers {
 
 
     async updateFavBooks(ctx) {
-        let userObj = ctx.request.body;
-        if (!userObj.author || !userObj.bookId) {
+        let Obj = ctx.request.body;
+        let bookArray = Obj.favouriteBooks;
+        console.log(bookArray.length)
+        if (!bookArray.length) {
             ctx.status = 400;
-            ctx.body = 'Please enter required fields.';
+            ctx.body = 'Please select books.';
             return;
         }
         try {
             let findQuery = {};
             findQuery._id = ctx.state.user._id;
-            let updateObj = {};
-            updateObj.author = userObj.author;
-            updateObj.bookId = userObj.bookId;
-            updateObj.category = userObj.category;
-            const user = await User.updateAsync(findQuery, { $addToSet: { favourite_books: updateObj } });
-            ctx.body = { success: true, message: "Book has been added successfully" };
+            const user = await User.updateAsync(findQuery, { $addToSet: { favourite_books:{ $each:bookArray}} });
+            ctx.body = { success: true, message: "Book has been added successfully." };
         } catch (err) {
             console.log(err);
             ctx.throw(err);

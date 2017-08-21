@@ -102,6 +102,10 @@ class BooksControllers {
 
     async getBookById(ctx) {
         let id = ctx.params.bookId;
+
+        if(!id){
+            ctx.throw(400,'Please send book id.');
+        }
         let options={
             key:config.GOOGLE_BOOK_KEY
         }
