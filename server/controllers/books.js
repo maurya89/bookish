@@ -5,7 +5,9 @@ import Promise from 'bluebird';
 import googleBooksSearch from 'google-books-search';
 import _ from 'lodash';
 import Category from '../models/categories';
+import User from '../models/users';
 const googleBooks = Promise.promisifyAll(googleBooksSearch);
+
 
 
 
@@ -128,11 +130,18 @@ class BooksControllers {
             ctx.throw(400, 'Please send required fields');
         }
         let offset = ctx.params.offset;
-        let categories = ['Music', 'Fantasy', 'Education'];
-
+        let userObj = ctx.state.user;
+        
+        let categories = [];
+        let findQuery = {};
+        findQuery._id = userObj._id;
+        const user = await User.findOne(findQuery).lean(true).execAsync();
+        let favBooks = user.favourite_books;
+        favBooks.forEach(function(element) {
+            categories.push(element.category)
+        }, this);
         let category = _.sample(categories);
 
-        console.log(category);
         let options = {
             key: config.GOOGLE_BOOK_KEY,
             offset: offset,
@@ -157,7 +166,17 @@ class BooksControllers {
             ctx.throw(400, 'Please send required fields');
         }
         let offset = ctx.params.offset;
-        let authors = ['Mark Tully', 'Chetan Bhagat', 'Dalai Lama','Naseeruddin Shah','Ratan Tata'];
+        let userObj = ctx.state.user;
+        
+        let authors = [];
+
+        let findQuery = {};
+        findQuery._id = userObj._id;
+        const user = await User.findOne(findQuery).lean(true).execAsync();
+        let favBooks = user.favourite_books;
+        favBooks.forEach(function(element) {
+            authors.push(element.author)
+        }, this);
 
         let author = _.sample(authors);
 
@@ -185,16 +204,23 @@ class BooksControllers {
             ctx.throw(400, 'Please send required fields');
         }
         let offset = ctx.params.offset;
-        let categories = ['Music', 'Fantasy', 'Education', 'Adventure'];
-
+        let userObj = ctx.state.user;
+        
+        let categories = [];
+        let findQuery = {};
+        findQuery._id = userObj._id;
+        const user = await User.findOne(findQuery).lean(true).execAsync();
+        let favBooks = user.favourite_books;
+        favBooks.forEach(function(element) {
+            categories.push(element.category)
+        }, this);
         let category = _.sample(categories);
 
-        console.log(category);
         let options = {
             key: config.GOOGLE_BOOK_KEY,
             offset: offset,
             limit: 10,
-            field: 'subject',
+            field: 'title',
             type: 'books',
             order: 'newest',
             lang: 'en'
