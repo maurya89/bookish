@@ -233,7 +233,6 @@ class UsersControllers {
                 subject: 'Forgot Password', // Subject line
                 html: 'click here'
             };
-
             let mailInfo = await transporter.sendMailAsync(mailOptions);
             ctx.body = { success: true, message: 'Email sent successfully' };
         } catch (err) {

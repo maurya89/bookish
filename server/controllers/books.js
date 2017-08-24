@@ -118,7 +118,7 @@ class BooksControllers {
                 cyx.body = {success:false, message:'Book not found.'};
                 return;
             };
-            ctx.body = book;            
+            ctx.body = { success: true, data: book, arrayData: [] };
         } catch (err) {
             ctx.throw(err);
         }
