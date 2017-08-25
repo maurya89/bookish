@@ -232,6 +232,42 @@ class BooksControllers {
             ctx.throw(err);
         }
     }
+
+
+    async getSimilarBooks(ctx) {
+        
+        if (!ctx.request.body) {
+            ctx.throw(400, 'Please send required fields.');
+            return;
+        }
+        let bodyObj = ctx.request.body;
+        let offset = ctx.params.offset;
+        let arr = [];
+
+        Object.keys(bodyObj).forEach(function (key) {
+            let searchJson = {};
+            searchJson.filter = bodyObj[key];
+            searchJson.type = key;
+            arr.push(searchJson);
+        });
+
+        let option = _.sample(arr);
+        let options = {
+            key: config.GOOGLE_BOOK_KEY,
+            offset: offset,
+            limit: 10,
+            field: option.type,
+            type: 'books',
+            order: 'relevance',
+            lang: 'en'
+        };
+        try {
+            let books = await googleBooks.searchAsync(option.filter, options);
+            ctx.body = { success: true, data: {}, arrayData: books };
+        } catch (err) {
+            ctx.throw(err);
+        }
+    }
 }
 
 export default new BooksControllers()

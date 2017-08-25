@@ -24,5 +24,7 @@ router.get('/recommended/author/:offset', BooksControllers.getRecommendedBooksBy
 
 router.get('/recommended/new-release/:offset', BooksControllers.getRecommendedBooksByNewRelease)
 
+router.post('/getSimilarBooks/:offset', BooksControllers.getSimilarBooks)
+
 
 export default router
