@@ -26,5 +26,11 @@ router.get('/recommended/new-release/:offset', BooksControllers.getRecommendedBo
 
 router.post('/getSimilarBooks/:offset', BooksControllers.getSimilarBooks)
 
+router.post('/bookshelf/:bookId', BooksControllers.createBookshelf)
+
+router.get('/bookshelf', BooksControllers.getBookShelfByUserId)
+
+
+
 
 export default router
