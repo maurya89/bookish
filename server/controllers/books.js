@@ -313,7 +313,7 @@ class BooksControllers {
 
 
   async createBookshelf(ctx) {
-    let id = ctx.params.bookId;
+    let id = ctx.request.body.bookId;
 
     if (!id) {
       ctx.throw(400, 'Please send book id.');
