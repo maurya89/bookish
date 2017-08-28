@@ -30,7 +30,4 @@ router.post('/bookshelf', BooksControllers.createBookshelf)
 
 router.get('/bookshelf/:status', BooksControllers.getBookShelfByUserId)
 
-
-
-
 export default router

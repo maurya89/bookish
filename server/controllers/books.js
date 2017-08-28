@@ -140,6 +140,15 @@ class BooksControllers {
         };
         return;
       };
+      let findQuery = {};
+      findQuery.user_id = ctx.state.user._id;
+      findQuery.id = id;
+
+      let bookStatus =  await Bookshelf.findOneAsync(findQuery);
+      if(bookStatus){
+        book.isReading = bookStatus.isReading;
+      }
+      
       ctx.body = {
         success: true,
         data: book,
