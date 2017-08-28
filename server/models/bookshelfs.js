@@ -56,6 +56,10 @@ const BookshelfSchema = new mongoose.Schema({
   images: {
     type: Object,
     required: false
+  },
+  isReading:{
+    type:String,
+    default:'reading'
   }
 }, {
   timestamps: true

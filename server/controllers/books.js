@@ -334,7 +334,6 @@ class BooksControllers {
       let findQuery = {};
       findQuery.user_id = ctx.state.user._id;
       findQuery.id = id;
-
       let checkBook = await Bookshelf.findOneAsync(findQuery);
       console.log(checkBook)
       if (checkBook) {
@@ -370,15 +369,19 @@ class BooksControllers {
           ctx.throw(400, 'Please login  to create bookshelf');
           return;
       }
+
+      if (!ctx.params.status){
+        ctx.throw(400, 'Please send required parameter');
+        return;
+      }
       let user_id = ctx.state.user._id;
       let findQuery = {};
       findQuery.user_id = user_id;
-
+      findQuery.isReading = ctx.params.status;
       let books = await Bookshelf.findAsync(findQuery);
       if (!books) {
           ctx.throw(400, 'Book not found');
       }
-
       ctx.body = { success: true, arrayData: books, data: {} }
   }
 }
