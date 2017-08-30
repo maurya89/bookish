@@ -393,6 +393,30 @@ class BooksControllers {
       }
       ctx.body = { success: true, arrayData: books, data: {} }
   }
+
+  async updateBookshelf(ctx) {
+    
+          if (!ctx.state.user) {
+              ctx.throw(400, 'Please login  to update bookshelf');
+              return;
+          }
+          if (!ctx.request.body.bookId){
+            ctx.throw(400, 'Please send Book id');
+            return;
+          }
+          let bodyObj = ctx.request.body;
+          let user_id = ctx.state.user._id;
+          let findQuery = {};
+          findQuery.user_id = user_id;
+          findQuery.id = bodyObj.bookId;
+          let books = await Bookshelf.updateAsync(findQuery,{$set:{isReading:'completed'}});
+          if (!books) {
+              ctx.throw(400, 'Book not found');
+          }
+          ctx.body = { success: true, arrayData: [], data: {}, message:"Books updated successfully" }
+      }
+
+
 }
 
 export default new BooksControllers()
