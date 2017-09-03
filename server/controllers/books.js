@@ -7,6 +7,7 @@ import _ from 'lodash';
 import Category from '../models/categories';
 import User from '../models/users';
 import Bookshelf from '../models/bookshelfs';
+import Book from '../models/books'
 const googleBooks = Promise.promisifyAll(googleBooksSearch);
 
 
@@ -344,7 +345,6 @@ class BooksControllers {
       findQuery.user_id = ctx.state.user._id;
       findQuery.id = id;
       let checkBook = await Bookshelf.findOneAsync(findQuery);
-      console.log(checkBook)
       if (checkBook) {
         ctx.throw(400, 'Books already added to your bookshelf.');
         return;
@@ -359,8 +359,8 @@ class BooksControllers {
         return;
       };
 
+      let BookData = await Book.updateAsync({id:book.id},{$set:book,$inc: { view: 1 }},{upsert:true});
       book.user_id = ctx.state.user._id;
-
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
       ctx.body = {
@@ -416,6 +416,26 @@ class BooksControllers {
           ctx.body = { success: true, arrayData: [], data: {}, message:"Books updated successfully" }
       }
 
+
+      async updateBookLike(ctx) {
+        
+              if (!ctx.params.bookId){
+                ctx.throw(400, 'Please send Book id');
+                return;
+              }
+
+              let findQuery = {};
+              findQuery.id = ctx.params.bookId;
+              let books = await Book.updateAsync(findQuery,{$inc:{like:1}});
+              if (!books) {
+                  ctx.throw(400, 'Book not found');
+              }
+              ctx.body = { success: true, message:"Books updated successfully" }
+          }
+
+
+
+      
 
 }
 
