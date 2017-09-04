@@ -437,7 +437,7 @@ class BooksControllers {
     updateObj.rating = rating;
     updateObj.review = review;
     let books = await Bookshelf.updateAsync(findQuery, { $set: updateObj });
-    ctx.body = { success: true, message: "Books updated successfully" }
+    ctx.body = { success: true, message: "Rating submitted successfully" }
   }
 
 
