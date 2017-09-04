@@ -57,13 +57,25 @@ const BookshelfSchema = new mongoose.Schema({
     type: Object,
     required: false
   },
-  isReading:{
+  isReading: {
+    type: String,
+    default: 'reading'
+  },
+  view: {
+    type: Number,
+    default: 1
+  },
+  rating: {
+    type: Number,
+    default: 0
+  },
+  review:{
     type:String,
-    default:'reading'
+    default:''
   }
 }, {
-  timestamps: true
-});
+    timestamps: true
+  });
 
 /**
  * Methods

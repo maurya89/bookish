@@ -32,7 +32,7 @@ router.get('/bookshelf/:status', BooksControllers.getBookShelfByUserId)
 
 router.post('/bookshelf/update', BooksControllers.updateBookshelf)
 
-router.put('/like/:bookId', BooksControllers.updateBookLike)
+router.put('/rating-review', BooksControllers.updateBookRatingReview)
 
 
 export default router

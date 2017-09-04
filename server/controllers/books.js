@@ -417,21 +417,28 @@ class BooksControllers {
       }
 
 
-      async updateBookLike(ctx) {
-        
-              if (!ctx.params.bookId){
-                ctx.throw(400, 'Please send Book id');
-                return;
-              }
+  async updateBookRatingReview(ctx) {
 
-              let findQuery = {};
-              findQuery.id = ctx.params.bookId;
-              let books = await Book.updateAsync(findQuery,{$inc:{like:1}});
-              if (!books) {
-                  ctx.throw(400, 'Book not found');
-              }
-              ctx.body = { success: true, message:"Books updated successfully" }
-          }
+    let bodyObj = ctx.request.body;
+
+    if (!bodyObj.bookId) {
+      ctx.throw(400, 'Please send Book Id');
+      return;
+    }
+
+    let rating = bodyObj.rating || 0;
+    let review = bodyObj.review || '';
+
+    let userId = ctx.state.user._id;
+    let findQuery = {};
+    findQuery.id = bodyObj.bookId;
+    findQuery.user_id = ctx.state.user._id;
+    let updateObj = {};
+    updateObj.rating = rating;
+    updateObj.review = review;
+    let books = await Bookshelf.updateAsync(findQuery, { $set: updateObj });
+    ctx.body = { success: true, message: "Books updated successfully" }
+  }
 
 
 
