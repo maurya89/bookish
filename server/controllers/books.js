@@ -182,6 +182,7 @@ class BooksControllers {
       let bookStatus = await Bookshelf.findOneAsync(findQuery);
       if (bookStatus) {
         book.isReading = bookStatus.isReading;
+        book.review = bookStatus.review;
       }
 
       ctx.body = {
