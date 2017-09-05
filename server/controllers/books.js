@@ -47,7 +47,7 @@ class BooksControllers {
         //let categories = ['History', 'Science','Travel','Music','Romance','Drama','Fantasy'];
         let categories = await Category.findAsync({});
         let booksArray = [];
-        await Promise.all(categories.map(async(category) => {
+        await Promise.all(categories.map(async (category) => {
           let books = await googleBooks.searchAsync(category.categoryName, options);
           let json = {};
           json.CategoryName = category.categoryName;
@@ -63,7 +63,7 @@ class BooksControllers {
         let categories = searchParameter instanceof Array ? searchParameter : [];
 
         let booksArray = [];
-        await Promise.all(categories.map(async(category) => {
+        await Promise.all(categories.map(async (category) => {
           let books = await googleBooks.searchAsync(category, options);
           let json = {};
           json.CategoryName = category;
@@ -82,7 +82,39 @@ class BooksControllers {
     }
   }
 
-
+  async getBooksData(ctx) {
+    
+        let obj = ctx.request.body;
+        if (!obj.search || typeof obj.offset == 'undefined') {
+          ctx.status = 400;
+          ctx.body = {
+            success: false,
+            message: "Please select required fields."
+          }
+          return;
+        }
+    
+        let options = {
+          key: config.GOOGLE_BOOK_KEY,
+          offset: obj.offset,
+          limit: 10,
+          type: 'books',
+          order: 'newest',
+          lang: 'en'
+        };
+        try {
+          let books = await googleBooks.searchAsync(obj.search, options);
+          ctx.body = {
+            success: true,
+            data: {},
+            arrayData: books
+          };
+    
+        } catch (err) {
+          console.log(err)
+          ctx.throw(500, 'Some error occured during book fetch');
+        }
+      }
 
   async getAllBooksByCategory(ctx) {
 
@@ -147,11 +179,11 @@ class BooksControllers {
       findQuery.user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookStatus =  await Bookshelf.findOneAsync(findQuery);
-      if(bookStatus){
+      let bookStatus = await Bookshelf.findOneAsync(findQuery);
+      if (bookStatus) {
         book.isReading = bookStatus.isReading;
       }
-      
+
       ctx.body = {
         success: true,
         data: book,
@@ -333,7 +365,7 @@ class BooksControllers {
     }
 
     if (!ctx.state.user) {
-      ctx.throw(400, 'Please loginto create bookshelf');
+      ctx.throw(400, 'Please login to create bookshelf');
       return;
     }
     let options = {
@@ -361,7 +393,7 @@ class BooksControllers {
         return;
       };
 
-      let BookData = await Book.updateAsync({id:book.id},{$set:book,$inc: { view: 1 }},{upsert:true});
+      let BookData = await Book.updateAsync({ id: book.id }, { $set: book, $inc: { view: 1 } }, { upsert: true });
       book.user_id = ctx.state.user._id;
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
@@ -376,47 +408,47 @@ class BooksControllers {
 
   async getBookShelfByUserId(ctx) {
 
-      if (!ctx.state.user) {
-          ctx.throw(400, 'Please login  to create bookshelf');
-          return;
-      }
+    if (!ctx.state.user) {
+      ctx.throw(400, 'Please login  to create bookshelf');
+      return;
+    }
 
-      if (!ctx.params.status){
-        ctx.throw(400, 'Please send required parameter');
-        return;
-      }
-      let user_id = ctx.state.user._id;
-      let findQuery = {};
-      findQuery.user_id = user_id;
-      findQuery.isReading = ctx.params.status;
-      let books = await Bookshelf.findAsync(findQuery);
-      if (!books) {
-          ctx.throw(400, 'Book not found');
-      }
-      ctx.body = { success: true, arrayData: books, data: {} }
+    if (!ctx.params.status) {
+      ctx.throw(400, 'Please send required parameter');
+      return;
+    }
+    let user_id = ctx.state.user._id;
+    let findQuery = {};
+    findQuery.user_id = user_id;
+    findQuery.isReading = ctx.params.status;
+    let books = await Bookshelf.findAsync(findQuery);
+    if (!books) {
+      ctx.throw(400, 'Book not found');
+    }
+    ctx.body = { success: true, arrayData: books, data: {} }
   }
 
   async updateBookshelf(ctx) {
-    
-          if (!ctx.state.user) {
-              ctx.throw(400, 'Please login  to update bookshelf');
-              return;
-          }
-          if (!ctx.request.body.bookId){
-            ctx.throw(400, 'Please send Book id');
-            return;
-          }
-          let bodyObj = ctx.request.body;
-          let user_id = ctx.state.user._id;
-          let findQuery = {};
-          findQuery.user_id = user_id;
-          findQuery.id = bodyObj.bookId;
-          let books = await Bookshelf.updateAsync(findQuery,{$set:{isReading:'completed'}});
-          if (!books) {
-              ctx.throw(400, 'Book not found');
-          }
-          ctx.body = { success: true, arrayData: [], data: {}, message:"Books updated successfully" }
-      }
+
+    if (!ctx.state.user) {
+      ctx.throw(400, 'Please login  to update bookshelf');
+      return;
+    }
+    if (!ctx.request.body.bookId) {
+      ctx.throw(400, 'Please send Book id');
+      return;
+    }
+    let bodyObj = ctx.request.body;
+    let user_id = ctx.state.user._id;
+    let findQuery = {};
+    findQuery.user_id = user_id;
+    findQuery.id = bodyObj.bookId;
+    let books = await Bookshelf.updateAsync(findQuery, { $set: { isReading: 'completed' } });
+    if (!books) {
+      ctx.throw(400, 'Book not found');
+    }
+    ctx.body = { success: true, arrayData: [], data: {}, message: "Books updated successfully" }
+  }
 
 
   async updateBookRatingReview(ctx) {
@@ -451,15 +483,15 @@ class BooksControllers {
     let searchText = ctx.request.body.search;
     console.log("search text", searchText);
     try {
-      if(searchText == ''){
+      if (searchText == '') {
         console.log("helo");
-        let arr  = await PopularSearch.find({}).select({_id:0}).execAsync();
+        let arr = await PopularSearch.find({}).select({ _id: 0 }).execAsync();
         ctx.body = {
           success: true,
           data: {},
           arrayData: arr
         };
-      }else{
+      } else {
         let books = await googleBooks.searchAsync(searchText);
         let arr = [];
         books.forEach((item) => {
@@ -467,13 +499,13 @@ class BooksControllers {
           json.title = item.title;
           arr.push(json);
         })
-      ctx.body = {
-        success: true,
-        data: {},
-        arrayData: arr
-      };
+        ctx.body = {
+          success: true,
+          data: {},
+          arrayData: arr
+        };
       }
-      
+
     } catch (err) {
       ctx.throw(err);
     }
@@ -486,7 +518,7 @@ class BooksControllers {
 
 
 
-      
+
 
 }
 

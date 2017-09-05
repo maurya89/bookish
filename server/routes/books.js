@@ -36,5 +36,7 @@ router.put('/rating-review', BooksControllers.updateBookRatingReview)
 
 router.post('/auto-search', BooksControllers.bookAutoSearch)
 
+router.post('/getBookData', BooksControllers.getBooksData)
+
 
 export default router
