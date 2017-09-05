@@ -7,7 +7,9 @@ import _ from 'lodash';
 import Category from '../models/categories';
 import User from '../models/users';
 import Bookshelf from '../models/bookshelfs';
-import Book from '../models/books'
+import Book from '../models/books';
+import PopularSearch from '../models/popular-searches'
+
 const googleBooks = Promise.promisifyAll(googleBooksSearch);
 
 
@@ -442,25 +444,36 @@ class BooksControllers {
 
   async bookAutoSearch(ctx) {
 
-    if (!ctx.params.search) {
+    if (typeof ctx.request.body.search === 'undefined') {
       ctx.throw(400, 'Please send search parameter.');
       return;
     }
-    let searchText = ctx.params.search;
+    let searchText = ctx.request.body.search;
+    console.log("search text", searchText);
     try {
-      let books = await googleBooks.searchAsync(searchText);
-      let arr = [];
-      books.forEach((item) => {
-        let json = {};
-        json.title = item.title;
-        arr.push(json);
-        
-      })
+      if(searchText == ''){
+        console.log("helo");
+        let arr  = await PopularSearch.findAsync({});
+        ctx.body = {
+          success: true,
+          data: {},
+          arrayData: arr
+        };
+      }else{
+        let books = await googleBooks.searchAsync(searchText);
+        let arr = [];
+        books.forEach((item) => {
+          let json = {};
+          json.title = item.title;
+          arr.push(json);
+        })
       ctx.body = {
         success: true,
         data: {},
         arrayData: arr
       };
+      }
+      
     } catch (err) {
       ctx.throw(err);
     }

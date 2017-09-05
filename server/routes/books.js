@@ -34,7 +34,7 @@ router.post('/bookshelf/update', BooksControllers.updateBookshelf)
 
 router.put('/rating-review', BooksControllers.updateBookRatingReview)
 
-router.get('/auto-search/:search', BooksControllers.bookAutoSearch)
+router.post('/auto-search', BooksControllers.bookAutoSearch)
 
 
 export default router
