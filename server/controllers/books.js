@@ -38,7 +38,7 @@ class BooksControllers {
       limit: 10,
       field: 'title',
       type: 'books',
-      order: 'relevance',
+      order: 'newest',
       lang: 'en'
     };
     try {
@@ -102,7 +102,7 @@ class BooksControllers {
       limit: 10,
       field: 'title',
       type: 'books',
-      order: 'relevance',
+      order: 'newest',
       lang: 'en'
     };
     try {
@@ -186,7 +186,7 @@ class BooksControllers {
       limit: 10,
       field: 'title',
       type: 'books',
-      order: 'relevance',
+      order: 'newest',
       lang: 'en'
     };
     try {
@@ -229,7 +229,7 @@ class BooksControllers {
       limit: 10,
       field: 'author',
       type: 'books',
-      order: 'relevance',
+      order: 'newest',
       lang: 'en'
     };
     try {
@@ -308,7 +308,7 @@ class BooksControllers {
       limit: 10,
       field: option.type,
       type: 'books',
-      order: 'relevance',
+      order: 'newest',
       lang: 'en'
     };
     try {
