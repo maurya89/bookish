@@ -93,17 +93,8 @@ class BooksControllers {
           }
           return;
         }
-    
-        let options = {
-          key: config.GOOGLE_BOOK_KEY,
-          offset: obj.offset,
-          limit: 10,
-          type: 'books',
-          order: 'newest',
-          lang: 'en'
-        };
         try {
-          let books = await googleBooks.searchAsync(obj.search, options);
+          let books = await googleBooks.searchAsync(obj.search);
           ctx.body = {
             success: true,
             data: {},
@@ -511,16 +502,6 @@ class BooksControllers {
       ctx.throw(err);
     }
   }
-
-
-
-
-
-
-
-
-
-
 }
 
 export default new BooksControllers()
