@@ -453,7 +453,7 @@ class BooksControllers {
     try {
       if(searchText == ''){
         console.log("helo");
-        let arr  = await PopularSearch.findAsync({});
+        let arr  = await PopularSearch.find({}).select({title:1}).execAsync();
         ctx.body = {
           success: true,
           data: {},
