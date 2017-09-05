@@ -440,6 +440,37 @@ class BooksControllers {
     ctx.body = { success: true, message: "Rating submitted successfully" }
   }
 
+  async bookAutoSearch(ctx) {
+
+    if (!ctx.params.search) {
+      ctx.throw(400, 'Please send search parameter.');
+      return;
+    }
+    let searchText = ctx.params.search;
+    try {
+      let books = await googleBooks.searchAsync(searchText);
+      let arr = [];
+      books.forEach((item) => {
+        let json = {};
+        json.title = item.title;
+        arr.push(json);
+        
+      })
+      ctx.body = {
+        success: true,
+        data: {},
+        arrayData: arr
+      };
+    } catch (err) {
+      ctx.throw(err);
+    }
+  }
+
+
+
+
+
+
 
 
       
