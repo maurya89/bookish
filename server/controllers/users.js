@@ -216,12 +216,15 @@ class UsersControllers {
             let user = await User.findOneAsync(findQuery);
             if (!user) {
                 ctx.status = 400;
-                cyx.body = { success: false, message: 'User not found.' };
+                ctx.body = { success: false, message: 'User not found.' };
                 return;
             }
             let userObj = {};
             userObj.forgotPwdToken = token;
             userObj.forgotPwdExpire = moment().add(1, 'hours').format();
+            
+            let linkHtml = 'http://' + ctx.request.host + '/reset/' + token;
+            let link = '<a href=' + linkHtml + '>' + linkHtml + '</a>';
 
             let updateObj = {};
             updateObj.$set = userObj;
@@ -231,12 +234,12 @@ class UsersControllers {
                 from: '"info@nethues.org.uk" <andy@123789.org>', // sender address
                 to: 'andy@123789.org', // list of receivers
                 subject: 'Forgot Password', // Subject line
-                html: 'click here'
+                html: link
             };
             let mailInfo = await transporter.sendMailAsync(mailOptions);
             ctx.body = { success: true, message: 'Email sent successfully' };
         } catch (err) {
-            ctx.throw(500);
+            ctx.throw(err);
         }
 
     }
