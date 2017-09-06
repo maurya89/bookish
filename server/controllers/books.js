@@ -167,6 +167,8 @@ class BooksControllers {
     }
     try {
       let book = await googleBooks.lookupAsync(id, options);
+      book.view = book.pageCount;
+      book.rating = book.pageCount;
       if (!book) {
         ctx.status = 400;
         cyx.body = {
