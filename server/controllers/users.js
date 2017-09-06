@@ -208,6 +208,12 @@ class UsersControllers {
      */
     async forgotPassword(ctx) {
 
+        if (!ctx.request.body.email) {
+            ctx.status = 400;
+            ctx.body = 'Please send email id.';
+            return;
+        }
+
         try {
             let buff = await crypto.randomBytesAsync(20);
             let token = buff.toString('hex');
@@ -232,7 +238,7 @@ class UsersControllers {
             let transporter = Promise.promisifyAll(nodemailer.createTransport(config.mailConfig));
             let mailOptions = {
                 from: '"info@nethues.org.uk" <andy@123789.org>', // sender address
-                to: 'andy@123789.org', // list of receivers
+                to: ctx.request.body.email, // list of receivers
                 subject: 'Forgot Password', // Subject line
                 html: link
             };
