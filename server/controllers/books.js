@@ -95,6 +95,11 @@ class BooksControllers {
         }
         try {
           let books = await googleBooks.searchAsync(obj.search);
+          books.forEach((item) => {
+            item.view = item.pageCount;
+            item.rating = item.pageCount;
+          })
+         
           ctx.body = {
             success: true,
             data: {},
@@ -130,6 +135,10 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(obj.category, options);
+      books.forEach((item) => {
+        item.view = item.pageCount;
+        item.rating = item.pageCount;
+      })
       ctx.body = {
         success: true,
         data: {},
@@ -215,6 +224,10 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(category, options);
+      books.forEach((item) => {
+        item.view = item.pageCount;
+        item.rating = item.pageCount;
+      })
       ctx.body = {
         success: true,
         data: {},
@@ -258,6 +271,10 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(author, options);
+      books.forEach((item) => {
+        item.view = item.pageCount;
+        item.rating = item.pageCount;
+      })
       ctx.body = {
         success: true,
         data: {},
@@ -297,6 +314,10 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(category, options);
+      books.forEach((item) => {
+        item.view = item.pageCount;
+        item.rating = item.pageCount;
+      })
       ctx.body = {
         success: true,
         data: {},
@@ -337,6 +358,10 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(option.filter, options);
+      books.forEach((item) => {
+        item.view = item.pageCount;
+        item.rating = item.pageCount;
+      })
       ctx.body = {
         success: true,
         data: {},
@@ -387,6 +412,8 @@ class BooksControllers {
 
       let BookData = await Book.updateAsync({ id: book.id }, { $set: book, $inc: { view: 1 } }, { upsert: true });
       book.user_id = ctx.state.user._id;
+      book.view = book.pageCount;
+      book.rating = book.pageCount;
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
       ctx.body = {
