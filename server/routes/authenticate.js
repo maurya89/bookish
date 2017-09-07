@@ -36,6 +36,9 @@ router.put('/signup',koaBody({ multipart: true,
 
 router.post('/forgotPassword', UsersControllers.forgotPassword)
 
+router.post('/reset/:token', UsersControllers.resetPassword)
+
+
 
 
 export default router

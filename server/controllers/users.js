@@ -256,13 +256,13 @@ class UsersControllers {
      */
     async resetPassword(ctx) {
 
-        if(!ctx.request.body){
+        if(!ctx.request.body.password){
             ctx.status = 400;
-            ctx.body = {success:false,message:'Please enter required fields.'}
+            ctx.body = {success:false,message:'Please send password.'}
         }
 
         try {
-            let user = await User.findOneAsync({ forgotPwdToken: ctx.request.params.token, forgotPwdExpire: { $gt: moment().toISOString() } });
+            let user = await User.findOneAsync({ forgotPwdToken: ctx.params.token, forgotPwdExpire: { $gt: moment().toISOString() } });
             if(!user){
                 ctx.status = 400;
                 ctx.body = {success:false, message:'Your token expired, Please try again'};
@@ -282,7 +282,7 @@ class UsersControllers {
             ctx.body = {success:true, message:'Password has been changed successfully'};
 
         } catch (err) {
-            ctx.throw(500);
+            ctx.throw(err);
         }
 
     }
