@@ -33,7 +33,7 @@ class BooksControllers {
     }
 
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: 0,
       limit: 10,
       field: 'title',
@@ -125,7 +125,7 @@ class BooksControllers {
     }
 
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: obj.offset,
       limit: 10,
       field: 'title',
@@ -163,7 +163,7 @@ class BooksControllers {
       ctx.throw(400, 'Please send book id.');
     }
     let options = {
-      //key: config.GOOGLE_BOOK_KEY
+      key: config.GOOGLE_BOOK_KEY
     }
     try {
       let book = await googleBooks.lookupAsync(id, options);
@@ -216,7 +216,7 @@ class BooksControllers {
     let category = _.sample(categories);
 
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: offset,
       limit: 10,
       field: 'title',
@@ -263,7 +263,7 @@ class BooksControllers {
 
     console.log(author);
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: offset,
       limit: 10,
       field: 'author',
@@ -306,7 +306,7 @@ class BooksControllers {
     let category = _.sample(categories);
 
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: offset,
       limit: 10,
       field: 'title',
@@ -350,7 +350,7 @@ class BooksControllers {
 
     let option = _.sample(arr);
     let options = {
-      //key: config.GOOGLE_BOOK_KEY,
+      key: config.GOOGLE_BOOK_KEY,
       offset: offset,
       limit: 10,
       field: option.type,
