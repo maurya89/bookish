@@ -1,8 +1,9 @@
-import 'babel-polyfill'
-import Router from 'koa-router'
-import { baseApi, publicApi } from '../config'
-import jwt from '../middlewares/jwt'
-import UsersControllers from '../controllers/users'
+import 'babel-polyfill';
+import Router from 'koa-router';
+import { baseApi, publicApi } from '../config';
+import jwt from '../middlewares/jwt';
+import UsersControllers from '../controllers/users';
+import BooksControllers from '../controllers/books';
 import koaBody from 'koa-body'
 //const koaBoody = koaBody()
 
@@ -37,6 +38,9 @@ router.put('/signup',koaBody({ multipart: true,
 router.post('/forgotPassword', UsersControllers.forgotPassword)
 
 router.post('/reset/:token', UsersControllers.resetPassword)
+
+router.get('/reset/:token', BooksControllers.getResetPasswordPage)
+
 
 
 

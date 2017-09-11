@@ -266,6 +266,7 @@ class UsersControllers {
             if(!user){
                 ctx.status = 400;
                 ctx.body = {success:false, message:'Your token expired, Please try again'};
+                return;
             }
             let password = ctx.request.body.password;
             let bcrypt_password = bcrypt.hashSync(password, 10);

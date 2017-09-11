@@ -93,8 +93,16 @@ class BooksControllers {
           }
           return;
         }
+
+        let options = {
+          key: config.GOOGLE_BOOK_KEY,
+          offset: obj.offset,
+          limit: 10,
+          type: 'books',
+          lang: 'en'
+        };
         try {
-          let books = await googleBooks.searchAsync(obj.search);
+          let books = await googleBooks.searchAsync(obj.search,options);
           books.forEach((item) => {
             item.view = item.pageCount;
             item.rating = item.pageCount;
@@ -530,6 +538,11 @@ class BooksControllers {
     } catch (err) {
       ctx.throw(err);
     }
+  }
+
+  async getResetPasswordPage(ctx){
+    let token = ctx.params.token;
+    await ctx.render('resetPassword',{token:token});
   }
 }
 
