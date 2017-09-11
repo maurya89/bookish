@@ -194,7 +194,9 @@ class BooksControllers {
         book.isReading = bookStatus.isReading;
         book.review = bookStatus.review;
       }
-      book.rating =  bookStatus.rating || ''      
+      if(bookStatus.rating){
+        book.rating =  bookStatus.rating || 0              
+      }
       ctx.body = {
         success: true,
         data: book,
