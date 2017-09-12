@@ -176,7 +176,7 @@ class BooksControllers {
     try {
       let book = await googleBooks.lookupAsync(id, options);
       book.view = book.pageCount;
-      //book.rating = book.pageCount;
+      book.rating = book.pageCount || 0;
       if (!book) {
         ctx.status = 400;
         cyx.body = {
@@ -194,11 +194,9 @@ class BooksControllers {
         book.isReading = bookStatus.isReading;
         book.review = bookStatus.review;
       }
-      if(bookStatus.rating){
-        book.rating =  bookStatus.rating || 0;              
-      }else{
-        book.rating = 0;
-      }
+      if(bookStatus){
+        book.rating =  bookStatus.rating || 0;
+      }             
       ctx.body = {
         success: true,
         data: book,
