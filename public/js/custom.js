@@ -24,7 +24,9 @@ $(document).ready(function () {
         data: json
     })
     .done(function (msg) {
-        alert("Data Saved: " + msg);
+        alert("Password has been updated successfully.");
+        $('#confirm-password').val('');
+        $('#password').val('');
     });
   })
 });

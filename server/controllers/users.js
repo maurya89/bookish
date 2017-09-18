@@ -229,7 +229,7 @@ class UsersControllers {
             userObj.forgotPwdToken = token;
             userObj.forgotPwdExpire = moment().add(1, 'hours').format();
             
-            let linkHtml = 'http://' + ctx.request.host + '/reset/' + token;
+            let linkHtml = 'http://' + ctx.request.host + '/public/users/reset/' + token;
             let link = '<a href=' + linkHtml + '>' + linkHtml + '</a>';
 
             let updateObj = {};

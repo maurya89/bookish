@@ -191,11 +191,6 @@ class BooksControllers {
 
       let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1,id:1}).lean(true).execAsync();
       let reviewJson = {};
-
-     
-   
-
-
       let bookStatus  = bookArray.find((item) => {
           return item.id == id && user_id == item.user_id;
       })
@@ -224,7 +219,6 @@ class BooksControllers {
               avgRating: { $avg: "$rating" }
             }
         }
-    
       ]).execAsync();
 
       book.avgRating  = avgRating.length ? avgRating[0].avgRating : 0;      
