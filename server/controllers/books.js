@@ -189,7 +189,7 @@ class BooksControllers {
       let user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookArray = await Bookshelf.findAsync(findQuery);
+      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0}).execAsync();
       let bookStatus  = bookArray.find((item) => {
           return item.id == id && user_id == item.user_id;
       })
