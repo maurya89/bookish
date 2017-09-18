@@ -189,7 +189,7 @@ class BooksControllers {
       let user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1}).lean(true).execAsync();
+      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1,id:1}).lean(true).execAsync();
       let reviewJson = {};
 
      
