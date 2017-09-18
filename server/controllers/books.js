@@ -176,7 +176,7 @@ class BooksControllers {
     try {
       let book = await googleBooks.lookupAsync(id, options);
       book.view = book.pageCount;
-      book.rating = book.pageCount || 0;
+      //book.rating = book.pageCount || 0;
       if (!book) {
         ctx.status = 400;
         cyx.body = {
@@ -186,21 +186,37 @@ class BooksControllers {
         return;
       };
       let findQuery = {};
-      findQuery.user_id = ctx.state.user._id;
+      let user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookStatus = await Bookshelf.findOneAsync(findQuery);
+      let bookArray = await Bookshelf.findAsync(findQuery);
+      let bookStatus  = bookArray.find((item) => {
+          return item.id == id && user_id == item.user_id;
+      })
       if (bookStatus) {
         book.isReading = bookStatus.isReading;
         book.review = bookStatus.review;
+        book.rating =  bookStatus.rating || 0; 
+        book.user_id =  bookStatus.user_id;
       }
-      if(bookStatus){
-        book.rating =  bookStatus.rating || 0;
-      }             
+      
+      let avgRating = await Bookshelf.aggregate([
+        { $match: {id: id }},
+        {
+          $group:
+            {
+              _id: "$id",
+              avgRating: { $avg: "$rating" }
+            }
+        }
+    
+      ]).execAsync();
+
+      book.avgRating  = avgRating.length ? avgRating[0].avgRating : 0;      
       ctx.body = {
         success: true,
         data: book,
-        arrayData: []
+        arrayData: bookArray
       };
     } catch (err) {
       ctx.throw(err);
@@ -425,7 +441,7 @@ class BooksControllers {
       let BookData = await Book.updateAsync({ id: book.id }, { $set: book, $inc: { view: 1 } }, { upsert: true });
       book.user_id = ctx.state.user._id;
       book.view = book.pageCount;
-      book.rating = book.pageCount;
+      book.rating = 0;
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
       ctx.body = {
