@@ -189,7 +189,13 @@ class BooksControllers {
       let user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0}).execAsync();
+      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1}).lean(true).execAsync();
+      let reviewJson = {};
+
+     
+   
+
+
       let bookStatus  = bookArray.find((item) => {
           return item.id == id && user_id == item.user_id;
       })
@@ -198,6 +204,15 @@ class BooksControllers {
         book.review = bookStatus.review;
         book.rating =  bookStatus.rating || 0; 
         book.user_id =  bookStatus.user_id;
+      }
+
+      for (let book of bookArray) {
+        if(book.isReading){
+          delete book.isReading;
+        }
+        let user = await User.findOneAsync({_id:book.user_id});
+        book.user_name = user.name;
+        book.profile_img_url = user.profile_photo;
       }
       
       let avgRating = await Bookshelf.aggregate([
