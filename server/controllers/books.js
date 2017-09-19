@@ -131,7 +131,6 @@ class BooksControllers {
       }
       return;
     }
-
     let options = {
       key: config.GOOGLE_BOOK_KEY,
       offset: obj.offset,
@@ -221,7 +220,16 @@ class BooksControllers {
         }
       ]).execAsync();
 
-      book.avgRating  = avgRating.length ? avgRating[0].avgRating : 0;      
+      if (avgRating.length) {
+        if (avgRating[0].avgRating < 100) {
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        } else {
+          book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+        }
+      } else {
+        book.avgRating = book.pageCount ? book.pageCount : 0;
+      }
+
       ctx.body = {
         success: true,
         data: book,
@@ -261,10 +269,30 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(category, options);
-      books.forEach((item) => {
-        item.view = item.pageCount;
-        item.rating = item.pageCount;
-      })
+      for (let book of books) {
+        book.view = book.pageCount ? book.pageCount : 0;
+        
+        let avgRating = await Bookshelf.aggregate([
+          { $match: { id: book.id } },
+          {
+            $group:
+            {
+              _id: "$id",
+              avgRating: { $avg: "$rating" }
+            }
+          }
+        ]).execAsync();
+        console.log("Avg Rating", avgRating);
+        if(avgRating.length){
+          if(avgRating[0].avgRating < 100){
+            book.avgRating = book.pageCount ? book.pageCount : 0;
+          }else{
+            book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+          }
+        }else{
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        }
+      }
       ctx.body = {
         success: true,
         data: {},
@@ -308,10 +336,30 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(author, options);
-      books.forEach((item) => {
-        item.view = item.pageCount;
-        item.rating = item.pageCount;
-      })
+      for (let book of books) {
+        book.view = book.pageCount ? book.pageCount : 0;
+        
+        let avgRating = await Bookshelf.aggregate([
+          { $match: { id: book.id } },
+          {
+            $group:
+            {
+              _id: "$id",
+              avgRating: { $avg: "$rating" }
+            }
+          }
+        ]).execAsync();
+
+        if (avgRating.length) {
+          if (avgRating[0].avgRating < 100) {
+            book.avgRating = book.pageCount ? book.pageCount : 0;
+          } else {
+            book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+          }
+        } else {
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        }
+      }
       ctx.body = {
         success: true,
         data: {},
@@ -351,10 +399,29 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(category, options);
-      books.forEach((item) => {
-        item.view = item.pageCount;
-        item.rating = item.pageCount;
-      })
+      for (let book of books) {
+        book.view = book.pageCount ? book.pageCount : 0;
+
+        let avgRating = await Bookshelf.aggregate([
+          { $match: { id: book.id } },
+          {
+            $group:
+            {
+              _id: "$id",
+              avgRating: { $avg: "$rating" }
+            }
+          }
+        ]).execAsync();
+        if (avgRating.length) {
+          if (avgRating[0].avgRating < 100) {
+            book.avgRating = book.pageCount ? book.pageCount : 0;
+          } else {
+            book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+          }
+        } else {
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        }
+      }
       ctx.body = {
         success: true,
         data: {},
@@ -425,8 +492,6 @@ class BooksControllers {
     let options = {
       key: config.GOOGLE_BOOK_KEY
     }
-
-
     try {
 
       let findQuery = {};
@@ -449,8 +514,8 @@ class BooksControllers {
 
       let BookData = await Book.updateAsync({ id: book.id }, { $set: book, $inc: { view: 1 } }, { upsert: true });
       book.user_id = ctx.state.user._id;
-      book.view = book.pageCount;
-      book.rating = 0;
+      book.view = book.pageCount ? book.pageCount : 0;
+      book.rating = book.pageCount ? book.pageCount : 0;
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
       ctx.body = {
@@ -477,9 +542,32 @@ class BooksControllers {
     let findQuery = {};
     findQuery.user_id = user_id;
     findQuery.isReading = ctx.params.status;
-    let books = await Bookshelf.findAsync(findQuery);
+    let books = await Bookshelf.find(findQuery).lean(true).execAsync();
     if (!books) {
       ctx.throw(400, 'Book not found');
+    }
+
+    for (let book of books) {
+
+      let avgRating = await Bookshelf.aggregate([
+        { $match: { id: book.id } },
+        {
+          $group:
+          {
+            _id: "$id",
+            avgRating: { $avg: "$rating" }
+          }
+        }
+      ]).execAsync();
+      if (avgRating.length) {
+        if (avgRating[0].avgRating < 100) {
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        } else {
+          book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+        }
+      } else {
+        book.avgRating = book.pageCount ? book.pageCount : 0;
+      }
     }
     ctx.body = { success: true, arrayData: books, data: {} }
   }
@@ -518,7 +606,6 @@ class BooksControllers {
 
     let rating = bodyObj.rating || 0;
     let review = bodyObj.review || '';
-
     let userId = ctx.state.user._id;
     let findQuery = {};
     findQuery.id = bodyObj.bookId;
