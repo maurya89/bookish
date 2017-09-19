@@ -228,11 +228,9 @@ class BooksControllers {
       } else {
         book.avgRating = book.pageCount ? book.pageCount : 0;
       }
-
-      /* let finalkBookArray = bookArray.filter((item) => {
-        item.user_id != ctx.state.user._id;
-      }) */
-
+      bookArray = bookArray.filter((item) => {        
+        return item.user_id !== ctx.state.user._id;
+      })
       ctx.body = {
         success: true,
         data: book,
@@ -285,7 +283,6 @@ class BooksControllers {
             }
           }
         ]).execAsync();
-        console.log("Avg Rating", avgRating);
         if(avgRating.length){
           if(avgRating[0].avgRating < 100){
             book.avgRating = book.pageCount ? book.pageCount : 0;
