@@ -103,10 +103,29 @@ class BooksControllers {
         };
         try {
           let books = await googleBooks.searchAsync(obj.search,options);
-          books.forEach((item) => {
-            item.view = item.pageCount;
-            item.rating = item.pageCount;
-          })
+          for (let book of books) {
+            book.view = book.pageCount ? book.pageCount : 0;
+    
+            let avgRating = await Bookshelf.aggregate([
+              { $match: { id: book.id } },
+              {
+                $group:
+                {
+                  _id: "$id",
+                  avgRating: { $avg: "$rating" }
+                }
+              }
+            ]).execAsync();
+            if (avgRating.length) {
+              if (avgRating[0].avgRating < 100) {
+                book.avgRating = book.pageCount ? book.pageCount : 0;
+              } else {
+                book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+              }
+            } else {
+              book.avgRating = book.pageCount ? book.pageCount : 0;
+            }
+          }
          
           ctx.body = {
             success: true,
@@ -142,10 +161,29 @@ class BooksControllers {
     };
     try {
       let books = await googleBooks.searchAsync(obj.category, options);
-      books.forEach((item) => {
-        item.view = item.pageCount;
-        item.rating = item.pageCount;
-      })
+      for (let book of books) {
+        book.view = book.pageCount ? book.pageCount : 0;
+
+        let avgRating = await Bookshelf.aggregate([
+          { $match: { id: book.id } },
+          {
+            $group:
+            {
+              _id: "$id",
+              avgRating: { $avg: "$rating" }
+            }
+          }
+        ]).execAsync();
+        if (avgRating.length) {
+          if (avgRating[0].avgRating < 100) {
+            book.avgRating = book.pageCount ? book.pageCount : 0;
+          } else {
+            book.avgRating = avgRating.length ? avgRating[0].avgRating : 0;
+          }
+        } else {
+          book.avgRating = book.pageCount ? book.pageCount : 0;
+        }
+      }
       ctx.body = {
         success: true,
         data: {},
