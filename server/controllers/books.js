@@ -229,14 +229,14 @@ class BooksControllers {
         book.avgRating = book.pageCount ? book.pageCount : 0;
       }
 
-      let finalkBookArray = bookArray.filter((item) => {
+      /* let finalkBookArray = bookArray.filter((item) => {
         item.user_id != ctx.state.user._id;
-      })
+      }) */
 
       ctx.body = {
         success: true,
         data: book,
-        arrayData: finalkBookArray
+        arrayData: bookArray
       };
     } catch (err) {
       ctx.throw(err);
