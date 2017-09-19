@@ -208,7 +208,6 @@ class BooksControllers {
         book.user_name = user.name;
         book.profile_img_url = user.profile_photo;
       }
-      
       let avgRating = await Bookshelf.aggregate([
         { $match: {id: id }},
         {
@@ -230,10 +229,14 @@ class BooksControllers {
         book.avgRating = book.pageCount ? book.pageCount : 0;
       }
 
+      let finalkBookArray = bookArray.filter((item) => {
+        item.user_id != ctx.state.user._id;
+      })
+
       ctx.body = {
         success: true,
         data: book,
-        arrayData: bookArray
+        arrayData: finalkBookArray
       };
     } catch (err) {
       ctx.throw(err);
@@ -515,7 +518,7 @@ class BooksControllers {
       let BookData = await Book.updateAsync({ id: book.id }, { $set: book, $inc: { view: 1 } }, { upsert: true });
       book.user_id = ctx.state.user._id;
       book.view = book.pageCount ? book.pageCount : 0;
-      book.rating = book.pageCount ? book.pageCount : 0;
+      book.rating = 0;
       let bookshelf = new Bookshelf(book);
       let booksSaved = await bookshelf.saveAsync();
       ctx.body = {
