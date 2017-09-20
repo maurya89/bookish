@@ -38,6 +38,9 @@ router.post('/auto-search', BooksControllers.bookAutoSearch)
 
 router.post('/getBookData', BooksControllers.getBooksData)
 
+router.get('/getAllReview/:bookId/:page_number', BooksControllers.getAllReview)
+
+
 
 
 

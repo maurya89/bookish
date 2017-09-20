@@ -216,7 +216,7 @@ class BooksControllers {
       //book.rating = book.pageCount || 0;
       if (!book) {
         ctx.status = 400;
-        cyx.body = {
+        ctx.body = {
           success: false,
           message: 'Book not found.'
         };
@@ -695,6 +695,33 @@ class BooksControllers {
   async getResetPasswordPage(ctx){
     let token = ctx.params.token;
     await ctx.render('resetPassword',{token:token});
+  }
+
+
+    /**
+   * Get Books By Id
+   * @param {*} ctx 
+   */
+
+  async getAllReview(ctx) {
+    let id = ctx.params.bookId;
+    let PAGE_NUMBER = ctx.params.page_number;
+
+    try {
+      let findQuery = {};
+      let user_id = ctx.state.user._id;
+      findQuery.id = id;
+      let review = await Bookshelf.find(findQuery).skip(10 * (PAGE_NUMBER - 1)).limit(10).select({review:1,_id:0,createdAt:1}).lean(true).execAsync();
+      console.log(review);
+      ctx.body = {
+        success: true,
+        data: {},
+        arrayData: review
+      };
+
+    } catch (err) {
+      ctx.throw(err);
+    }
   }
 }
 
