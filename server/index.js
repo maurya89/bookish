@@ -9,6 +9,7 @@ import serve from 'koa-static';
 import Promise from 'bluebird';
 import jwt from 'koa-jwt';
 import Pug from 'koa-pug';
+import cors from 'koa-cors';
 
 
 
@@ -34,6 +35,8 @@ mongoose.set('debug', true);
 
 // Create Koa Application
 const app = new Koa();
+
+app.use(cors());
 
 app.use(async (ctx, next) => {
   try {

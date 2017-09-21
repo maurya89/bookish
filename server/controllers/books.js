@@ -226,7 +226,7 @@ class BooksControllers {
       let user_id = ctx.state.user._id;
       findQuery.id = id;
 
-      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1,id:1}).lean(true).execAsync();
+      let bookArray = await Bookshelf.find(findQuery).select({review:1,rating:1,_id:0,user_id,createdAt:1,isReading:1,view:1,id:1}).lean(true).limit(5).execAsync();
       let reviewJson = {};
       let bookStatus  = bookArray.find((item) => {
           return item.id == id && user_id == item.user_id;
@@ -706,7 +706,6 @@ class BooksControllers {
   async getAllReview(ctx) {
     let id = ctx.params.bookId;
     let PAGE_NUMBER = ctx.params.page_number;
-
     try {
       let findQuery = {};
       let user_id = ctx.state.user._id;
@@ -718,7 +717,6 @@ class BooksControllers {
         data: {},
         arrayData: review
       };
-
     } catch (err) {
       ctx.throw(err);
     }
