@@ -19,4 +19,8 @@ router.post('/save-campaign', JsPlumbControllers.saveCampaign)
 
 router.get('/getCampaigns', JsPlumbControllers.getAllCampaigns)
 
+router.get('/getCampaignById/:id', JsPlumbControllers.getCampaignById)
+
+
+
 export default router

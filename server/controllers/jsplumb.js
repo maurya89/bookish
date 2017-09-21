@@ -13,9 +13,15 @@ class CategoriesControllers {
         console.log("json",jsonObj);
         //let obj = JSON.parse(jsonObj);
         try {
-            let campSave = new JsPlumb(jsonObj);
-            let campSaved = await campSave.saveAsync()
-            ctx.body = { data: {}, message:"Json saved successfully", success: true };
+            if(jsonObj.id){
+                let update = await JsPlumb.updateAsync({_id:jsonObj.id},{$set:jsonObj})
+                ctx.body = { data: {}, message:"Json saved successfully", success: true };
+            }else{
+                let campSave = new JsPlumb(jsonObj);
+                let campSaved = await campSave.saveAsync()
+                ctx.body = { data: {}, message:"Json saved successfully", success: true };
+            }
+            
         } catch (err) {
             ctx.throw(err);
         }
@@ -23,9 +29,9 @@ class CategoriesControllers {
 
 
     async getCampaignById(ctx) {
-        let id = ctx.param._id;
+        let id = ctx.params.id;
         try {
-            const campaign = await JsPlumb.findOne({id:_id}).lean(true).execAsync();
+            const campaign = await JsPlumb.findOne({_id:id}).lean(true).execAsync();
             if (!campaign) {
                 ctx.status = 400;
                 ctx.body = { success: false, message: "No Campaign Found." };
