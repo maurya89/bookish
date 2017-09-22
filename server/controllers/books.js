@@ -710,12 +710,16 @@ class BooksControllers {
       let findQuery = {};
       let user_id = ctx.state.user._id;
       findQuery.id = id;
-      let review = await Bookshelf.find(findQuery).skip(10 * (PAGE_NUMBER - 1)).limit(10).select({review:1,_id:0,createdAt:1}).lean(true).execAsync();
-      console.log(review);
+      let bookArray = await Bookshelf.find(findQuery).skip(10 * (PAGE_NUMBER - 1)).limit(10).lean(true).select({review:1,user_id:1,rating:1,_id:0,createdAt:1}).lean(true).execAsync();
+      for (let book of bookArray) {
+        let user = await User.findOneAsync({_id:book.user_id});
+        book.user_name = user.name;
+        book.profile_img_url = user.profile_photo;
+      }
       ctx.body = {
         success: true,
         data: {},
-        arrayData: review
+        arrayData: bookArray
       };
     } catch (err) {
       ctx.throw(err);
