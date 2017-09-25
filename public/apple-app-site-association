@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+    {
+      "appID": "JW533K8V9M.com.test.Bookish",
+      "paths": ["/public/users/reset/*"]
+    }
+    ]
+  }
+}
